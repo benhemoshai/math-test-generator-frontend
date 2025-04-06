@@ -14,7 +14,7 @@ const App = () => {
   useEffect(() => {
     const fetchTopics = async () => {
       try {
-        const res = await fetch('http://localhost:5000/topics');
+        const res = await fetch('https://math-test-generator-back.onrender.com/topics');
         const data = await res.json();
         setTopics(data);
       } catch (err) {
@@ -36,7 +36,7 @@ const App = () => {
   const handleGenerate = async () => {
     setIsGenerating(true);
     try {
-      const res = await fetch('http://localhost:5000/generate-test', {
+      const res = await fetch('https://math-test-generator-back.onrender.com/generate-test', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ topics: selectedTopics, mixExams }),

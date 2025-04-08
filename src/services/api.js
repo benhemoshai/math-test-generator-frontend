@@ -1,18 +1,22 @@
+<<<<<<< HEAD
 const API_BASE = import.meta.env.VITE_API_URL || 'https://math-test-generator-back.onrender.com';
+=======
+// src/services/api.js
+import axios from 'axios';
+
+const API_BASE = import.meta.env.VITE_API_URL;
+>>>>>>> development
 
 export async function fetchTopics() {
-  const res = await fetch(`${API_BASE}/topics`);
-  if (!res.ok) throw new Error('Failed to fetch topics');
-  return res.json();
+  const res = await axios.get(`${API_BASE}/topics`);
+  return res.data;
 }
 
 export async function generateTest({ topics, mixExams }) {
-  const res = await fetch(`${API_BASE}/generate-test`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ topics, mixExams }),
-  });
-
-  if (!res.ok) throw new Error('Failed to generate test');
-  return res.blob();
+  const res = await axios.post(
+    `${API_BASE}/generate-test`,
+    { topics, mixExams },
+    { responseType: 'blob' } // ✅ this ensures PDF blob is returned correctly
+  );
+  return res.data;
 }

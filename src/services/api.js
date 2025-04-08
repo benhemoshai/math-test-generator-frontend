@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL || 'https://math-test-backend.onrender.com';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://math-test-generator-back.onrender.com';
 
 export async function fetchTopics() {
   const res = await fetch(`${API_BASE}/topics`);

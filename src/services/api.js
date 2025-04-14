@@ -9,10 +9,19 @@ export async function fetchTopics() {
 }
 
 export async function generateTest({ topics, mixExams }) {
+  const token = localStorage.getItem('token');
+
   const res = await axios.post(
     `${API_BASE}/generate-test`,
     { topics, mixExams },
-    { responseType: 'blob' } // ✅ this ensures PDF blob is returned correctly
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: 'blob', // for PDF
+    }
   );
+
   return res.data;
 }
+

@@ -23,8 +23,15 @@ const AuthForm = ({ mode, language, toggleLanguage }) => {
         ? await registerService(formData.name, formData.email, formData.password)
         : await loginService(formData.email, formData.password);
   
-      login(data.token, data.user);
-      navigate('/');
+      if (isRegister) {
+        // ✅ Automatically log in the user after registration
+        login(data.token, data.user);
+        alert('Registration successful! Please wait for approval.');
+        navigate('/');
+      } else {
+        login(data.token, data.user);
+        navigate('/');
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Authentication failed.');
     }
@@ -33,10 +40,12 @@ const AuthForm = ({ mode, language, toggleLanguage }) => {
 
   return (
     <Layout language={language} toggleLanguage={toggleLanguage}>
-<div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 z-10">
-<h2 className="text-xl font-bold mb-4 text-center">
+      <div className="max-w-md mx-auto bg-white shadow-md rounded-lg p-6 z-10">
+        <h2 className="text-xl font-bold mb-4 text-center">
           {isRegister ? 'Register' : 'Login'}
         </h2>
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           {isRegister && (
             <input
@@ -68,6 +77,7 @@ const AuthForm = ({ mode, language, toggleLanguage }) => {
           </button>
         </form>
 
+        {/* Error message */}
         {error && (
           <div className="text-red-600 text-sm text-center mt-4">{error}</div>
         )}

@@ -6,13 +6,14 @@ import translations from './translations/translations';
 import { fetchTopics, generateTest } from './services/api';
 import { AuthContext } from './context/AuthContext';
 
-
 const App = ({ language, toggleLanguage }) => {
   const [topics, setTopics] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [mixExams, setMixExams] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const { isLoggedIn, user } = useContext(AuthContext);
 
   useEffect(() => {
     const loadTopics = async () => {
@@ -30,32 +31,36 @@ const App = ({ language, toggleLanguage }) => {
     loadTopics();
   }, []);
 
+  const handleGenerate = async () => {
+    if (!isLoggedIn) {
+      alert('Please log in to generate a test.');
+      return;
+    }
 
-// Inside your component:
-const { isLoggedIn } = useContext(AuthContext);
+    setIsGenerating(true);
+    try {
+      const blob = await generateTest({ topics: selectedTopics, mixExams });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'math-test.pdf';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
 
-const handleGenerate = async () => {
-  if (!isLoggedIn) {
-    alert('Please log in to generate a test.');
-    return;
-  }
+      if (err.response?.status === 403) {
+        alert('Your account is pending approval. Please wait for admin approval before generating tests.');
+      } else if (err.response?.status === 401) {
+        alert('Session expired or unauthorized. Please log in again.');
+      } else {
+        alert('Failed to generate PDF. Please try again later.');
+      }
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
-  setIsGenerating(true);
-  try {
-    const blob = await generateTest({ topics: selectedTopics, mixExams });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'math-test.pdf';
-    a.click();
-    URL.revokeObjectURL(url);
-  } catch (err) {
-    console.error(err);
-    alert('Failed to generate PDF.');
-  } finally {
-    setIsGenerating(false);
-  }
-};
   const handleCheckboxChange = (topic) => {
     setSelectedTopics(prev =>
       prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]
@@ -77,29 +82,36 @@ const handleGenerate = async () => {
 
   return (
     <Layout language={language} toggleLanguage={toggleLanguage}>
-    <div
-      className="w-full flex justify-center pt-10 z-10"
-      dir={language === 'he' ? 'rtl' : 'ltr'}
-    >
-      <div className="w-full max-w-md sm:max-w-lg md:max-w-xl px-2 sm:px-4">
-        <FormCard
-          language={language}
-          translations={translations[language]}
-          topics={topics}
-          selectedTopics={selectedTopics}
-          mixExams={mixExams}
-          isGenerating={isGenerating}
-          onTopicChange={handleCheckboxChange}
-          onMixToggle={() => {
-            setMixExams(!mixExams);
-            setSelectedTopics([]);
-          }}
-          onGenerateClick={handleGenerate}
-        />
+      <div
+        className="w-full flex flex-col items-center pt-10 z-10"
+        dir={language === 'he' ? 'rtl' : 'ltr'}
+      >
+        {/* ✅ Banner for pending users */}
+        {user?.status === 'pending' && (
+          <div className="w-full max-w-xl mb-4 px-4 py-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded text-center shadow">
+            ⏳ Your account is currently <strong>pending approval</strong>.
+            You’ll receive an email once approved.
+          </div>
+        )}
+
+        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl px-2 sm:px-4">
+          <FormCard
+            language={language}
+            translations={translations[language]}
+            topics={topics}
+            selectedTopics={selectedTopics}
+            mixExams={mixExams}
+            isGenerating={isGenerating}
+            onTopicChange={handleCheckboxChange}
+            onMixToggle={() => {
+              setMixExams(!mixExams);
+              setSelectedTopics([]);
+            }}
+            onGenerateClick={handleGenerate}
+          />
+        </div>
       </div>
-    </div>
-  </Layout>
-  
+    </Layout>
   );
 };
 

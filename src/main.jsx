@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
 import AuthForm from './components/AuthForm.jsx';
 import AuthProvider from './context/AuthProvider';
+import ActivateAccount from './components/ActivateAccount.jsx';
 import './index.css';
 
 const Root = () => {
@@ -27,6 +28,8 @@ const Root = () => {
             path="/register"
             element={<AuthForm mode="register" language={language} toggleLanguage={toggleLanguage} />}
           />
+          <Route path="/activate/:userId" element={<ActivateAccount />} />
+
         </Routes>
       </BrowserRouter>
     </AuthProvider>

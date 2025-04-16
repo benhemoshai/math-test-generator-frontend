@@ -14,6 +14,7 @@ const App = ({ language, toggleLanguage }) => {
   const [isGenerating, setIsGenerating] = useState(false);
 
   const { isLoggedIn, user } = useContext(AuthContext);
+  const [userStatus, setUserStatus] = useState(user?.status);
 
   useEffect(() => {
     const loadTopics = async () => {
@@ -30,6 +31,11 @@ const App = ({ language, toggleLanguage }) => {
 
     loadTopics();
   }, []);
+
+  // Sync user status from context to local state
+  useEffect(() => {
+    setUserStatus(user?.status);
+  }, [user]);
 
   const handleGenerate = async () => {
     if (!isLoggedIn) {
@@ -62,8 +68,8 @@ const App = ({ language, toggleLanguage }) => {
   };
 
   const handleCheckboxChange = (topic) => {
-    setSelectedTopics(prev =>
-      prev.includes(topic) ? prev.filter(t => t !== topic) : [...prev, topic]
+    setSelectedTopics((prev) =>
+      prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic]
     );
   };
 
@@ -87,7 +93,7 @@ const App = ({ language, toggleLanguage }) => {
         dir={language === 'he' ? 'rtl' : 'ltr'}
       >
         {/* ✅ Banner for pending users */}
-        {user?.status === 'pending' && (
+        {userStatus === 'pending' && (
           <div className="w-full max-w-xl mb-4 px-4 py-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded text-center shadow">
             ⏳ Your account is currently <strong>pending approval</strong>.
             You’ll receive an email once approved.

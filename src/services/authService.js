@@ -12,3 +12,17 @@ export const login = async (email, password) => {
   const res = await axios.post(`${API}/auth/login`, { email, password });
   return res.data;
 };
+
+export const getCurrentUser = async (token) => {
+  const res = await axios.get(`${API}/auth/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};
+
+export const activateUser = async (userId, token) => {
+  const res = await axios.post(`${API}/auth/activate/${userId}`, {}, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};

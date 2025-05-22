@@ -1,23 +1,27 @@
-import React from 'react';
-import topicTranslations from '../translations/topicTranslations';
+import React, { useState } from 'react';
+import unitTopics from '../utils/unitTopics';
 
 const FormCard = ({
   language,
   translations,
-  topics,
-  selectedTopics,
   mixExams,
   isGenerating,
+  selectedTopics,
   onTopicChange,
   onMixToggle,
   onGenerateClick,
+  onResetTopics,
+  setExamNumber // ✅ new prop
 }) => {
+  const [selectedUnit, setSelectedUnit] = useState(null);
+  const [selectedExam, setSelectedExam] = useState(null);
+
+  const selectedExamData = unitTopics
+    .find((u) => u.unit === selectedUnit)?.exams
+    .find((e) => e.number === selectedExam);
+
   return (
-    <div
-      className={`bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-xl mx-auto ${
-        language === 'he' ? 'text-right' : ''
-      }`}
-    >
+    <div className={`bg-white/90 backdrop-blur-md shadow-2xl rounded-3xl p-4 sm:p-6 md:p-8 w-full max-w-xl mx-auto ${language === 'he' ? 'text-right' : ''}`}>
       <div className="mb-4 sm:mb-6">
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 text-center bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           {translations.title}
@@ -28,107 +32,108 @@ const FormCard = ({
       </div>
 
       {!mixExams && (
-        <div className="mb-4 sm:mb-6 space-y-4">
-          {/* Chapter 1 */}
-          <div className="bg-blue-50 p-3 sm:p-4 rounded-xl border border-blue-100">
-            <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 text-blue-700 flex items-center">
-              {translations.chapter1}
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:gap-4">
-              {topics.slice(0, 3).map((topic) => (
-                <label
-                  key={topic}
-                  className={`flex items-center space-x-3 sm:space-x-2 rounded-lg px-3 sm:px-3 py-3 cursor-pointer transition-all duration-200 ${
-                    selectedTopics.includes(topic)
-                      ? 'bg-blue-200/70 border border-blue-300'
-                      : 'bg-white border border-gray-200 hover:bg-blue-50'
+        <>
+          {/* Unit Selection */}
+          <div className="mb-6 text-center">
+            <label className="block text-lg font-medium text-gray-700 mb-2">{translations.selectUnit}</label>
+            <div className="flex justify-center gap-4">
+              {unitTopics.map((unitObj) => (
+                <button
+                  key={unitObj.unit}
+                  onClick={() => {
+                    setSelectedUnit(unitObj.unit);
+                    setSelectedExam(null);
+                    onResetTopics();
+                    setExamNumber(null); // clear exam number when changing unit
+                  }}
+                  className={`px-4 py-2 rounded-lg font-semibold border transition-all duration-200 ${
+                    selectedUnit === unitObj.unit
+                      ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-md'
+                      : 'bg-white text-gray-700 hover:bg-gray-100'
                   }`}
                 >
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-6 w-6 sm:h-5 sm:w-5 accent-blue-600"
-                    checked={selectedTopics.includes(topic)}
-                    onChange={() => onTopicChange(topic)}
-                  />
-                  <span className={`text-sm sm:text-base ${selectedTopics.includes(topic) ? 'font-medium text-blue-700' : 'text-gray-700'}`}>
-                    {language === 'he' ? topicTranslations[topic] || topic : topic}
-                  </span>
-                </label>
+                  {unitObj.unit} {language === 'he' ? 'יח"ל' : 'Units'}
+                </button>
               ))}
             </div>
           </div>
 
-          {/* Chapter 2 */}
-          <div className="bg-purple-50 p-3 sm:p-4 rounded-xl border border-purple-100">
-            <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 text-purple-700 flex items-center">
-              {translations.chapter2}
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:gap-4">
-              {topics.slice(3, 5).map((topic) => (
-                <label
-                  key={topic}
-                  className={`flex items-center space-x-3 sm:space-x-2 rounded-lg px-3 sm:px-3 py-3 cursor-pointer transition-all duration-200 ${
-                    selectedTopics.includes(topic)
-                      ? 'bg-purple-200/70 border border-purple-300'
-                      : 'bg-white border border-gray-200 hover:bg-purple-50'
-                  }`}
+          {/* Exam Selection */}
+          {selectedUnit && (
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-700 mb-2">{translations.selectExam || 'Choose Exam'}</label>
+              <div className="relative">
+                <select
+                  className="w-full appearance-none bg-white border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-purple-500 focus:border-purple-500 block px-4 py-2 pr-10 shadow-sm transition-all"
+                  onChange={(e) => {
+                    const selected = parseInt(e.target.value);
+                    setSelectedExam(selected);
+                    setExamNumber(selected.toString()); // ✅ direct examNumber set
+                    onResetTopics();
+                  }}
+                  value={selectedExam || ''}
                 >
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-6 w-6 sm:h-5 sm:w-5 accent-purple-600"
-                    checked={selectedTopics.includes(topic)}
-                    onChange={() => onTopicChange(topic)}
-                  />
-                  <span className={`text-sm sm:text-base ${selectedTopics.includes(topic) ? 'font-medium text-purple-700' : 'text-gray-700'}`}>
-                    {language === 'he' ? topicTranslations[topic] || topic : topic}
-                  </span>
-                </label>
-              ))}
+                  <option value="" disabled>{translations.chooseExam || 'Select...'}</option>
+                  {unitTopics.find((u) => u.unit === selectedUnit)?.exams.map((exam) => (
+                    <option key={exam.number} value={exam.number}>{exam.number}</option>
+                  ))}
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Chapter 3 */}
-          <div className="bg-indigo-50 p-3 sm:p-4 rounded-xl border border-indigo-100">
-            <h2 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3 text-indigo-700 flex items-center">
-              {translations.chapter3}
-            </h2>
-            <div className="grid grid-cols-1 gap-3 sm:gap-4">
-              {topics.slice(5, 8).map((topic) => (
-                <label
-                  key={topic}
-                  className={`flex items-center space-x-3 sm:space-x-2 rounded-lg px-3 sm:px-3 py-3 cursor-pointer transition-all duration-200 ${
-                    selectedTopics.includes(topic)
-                      ? 'bg-indigo-200/70 border border-indigo-300'
-                      : 'bg-white border border-gray-200 hover:bg-indigo-50'
-                  }`}
-                >
-                  <input
-                    type="checkbox"
-                    className="form-checkbox h-6 w-6 sm:h-5 sm:w-5 accent-indigo-600"
-                    checked={selectedTopics.includes(topic)}
-                    onChange={() => onTopicChange(topic)}
-                  />
-                  <span className={`text-sm sm:text-base ${selectedTopics.includes(topic) ? 'font-medium text-indigo-700' : 'text-gray-700'}`}>
-                    {language === 'he' ? topicTranslations[topic] || topic : topic}
-                  </span>
-                </label>
+          {/* Topic Selection */}
+          {selectedExamData?.chapters && (
+            <div className="space-y-6 mb-6">
+              {selectedExamData.chapters.map((chapter, chapterIndex) => (
+                <div key={chapterIndex}>
+                  <h3 className="text-lg font-semibold text-blue-700 mb-3 border-b pb-1">
+                    {language === 'he'
+                      ? `פרק ${chapterIndex + 1} - ${chapter.name.he}`
+                      : `Chapter ${chapterIndex + 1} - ${chapter.name.en}`}
+                  </h3>
+                  <div className="space-y-3">
+                    {chapter.topics.map((topic) => (
+                      <label
+                        key={topic.en}
+                        className={`flex items-center space-x-3 bg-white border border-gray-200 p-3 rounded-lg ${
+                          selectedTopics.includes(topic.en)
+                            ? 'bg-blue-100 border-blue-300'
+                            : 'hover:bg-blue-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedTopics.includes(topic.en)}
+                          onChange={() => onTopicChange(topic.en)}
+                          className="form-checkbox h-5 w-5 text-blue-600"
+                        />
+                        <span className="text-gray-800">
+                          {language === 'he' ? topic.he : topic.en}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
-      {/* Mix Exams Toggle */}
-      <div 
-        className="flex items-center mb-4 sm:mb-6 bg-gray-50 p-3 sm:p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors"
-        onClick={onMixToggle}
-      >
+      {/* Mix Toggle */}
+      <div onClick={onMixToggle} className="flex items-center mb-4 sm:mb-6 bg-gray-50 p-3 rounded-xl border border-gray-200 cursor-pointer hover:bg-gray-100 transition-colors">
         <div className="flex items-center gap-2 w-full">
           <div className="relative">
-            <div className={`w-10 sm:w-10 h-5 sm:h-5 rounded-full transition-colors ${mixExams ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
-            <div className={`absolute top-0.5 left-0.5 bg-white w-4 h-4 sm:w-4 sm:h-4 rounded-full transition-transform ${mixExams ? 'translate-x-5 sm:translate-x-5' : ''}`}></div>
+            <div className={`w-10 h-5 rounded-full transition-colors ${mixExams ? 'bg-purple-600' : 'bg-gray-300'}`}></div>
+            <div className={`absolute top-0.5 left-0.5 bg-white w-4 h-4 rounded-full transition-transform ${mixExams ? 'translate-x-5' : ''}`}></div>
           </div>
-          <span className="text-sm sm:text-base font-medium text-gray-700">{translations.mixLabel}</span>
+          <span className="text-sm font-medium text-gray-700">{translations.mixLabel}</span>
         </div>
       </div>
 
@@ -136,7 +141,7 @@ const FormCard = ({
       <button
         onClick={onGenerateClick}
         disabled={isGenerating || (!mixExams && selectedTopics.length === 0)}
-        className={`w-full py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg transition-all duration-300 ${
+        className={`w-full py-3 rounded-xl font-bold text-base transition-all duration-300 ${
           isGenerating || (!mixExams && selectedTopics.length === 0)
             ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
             : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 shadow-lg hover:shadow-blue-200/50 transform hover:-translate-y-1'
@@ -144,7 +149,7 @@ const FormCard = ({
       >
         {isGenerating ? (
           <div className="flex items-center justify-center gap-2">
-            <svg className="animate-spin h-5 w-5 sm:h-6 sm:w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>

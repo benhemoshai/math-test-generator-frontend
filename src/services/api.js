@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL;
@@ -8,12 +7,12 @@ export async function fetchTopics() {
   return res.data;
 }
 
-export async function generateTest({ topics, mixExams }) {
+export async function generateTest({ topics, mixExams, examNumber }) {
   const token = localStorage.getItem('token');
 
   const res = await axios.post(
     `${API_BASE}/generate-test`,
-    { topics, mixExams },
+    { topics, mixExams, examNumber }, // ✅ include examNumber in payload
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -24,4 +23,3 @@ export async function generateTest({ topics, mixExams }) {
 
   return res.data;
 }
-

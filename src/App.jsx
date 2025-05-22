@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import FormCard from './components/FormCard';
 import Layout from './components/Layout';
@@ -12,6 +11,7 @@ const App = ({ language, toggleLanguage }) => {
   const [mixExams, setMixExams] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [examNumber, setExamNumber] = useState(null); // ✅ NEW
 
   const { isLoggedIn, user } = useContext(AuthContext);
   const [userStatus, setUserStatus] = useState(user?.status);
@@ -32,7 +32,6 @@ const App = ({ language, toggleLanguage }) => {
     loadTopics();
   }, []);
 
-  // Sync user status from context to local state
   useEffect(() => {
     setUserStatus(user?.status);
   }, [user]);
@@ -45,7 +44,12 @@ const App = ({ language, toggleLanguage }) => {
 
     setIsGenerating(true);
     try {
-      const blob = await generateTest({ topics: selectedTopics, mixExams });
+      const blob = await generateTest({
+        topics: selectedTopics,
+        mixExams,
+        examNumber // ✅ SEND TO BACKEND
+      });
+
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -65,6 +69,10 @@ const App = ({ language, toggleLanguage }) => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const resetSelectedTopics = () => {
+    setSelectedTopics([]);
   };
 
   const handleCheckboxChange = (topic) => {
@@ -88,11 +96,7 @@ const App = ({ language, toggleLanguage }) => {
 
   return (
     <Layout language={language} toggleLanguage={toggleLanguage}>
-      <div
-        className="w-full flex flex-col items-center pt-10 z-10"
-        dir={language === 'he' ? 'rtl' : 'ltr'}
-      >
-        {/* ✅ Banner for pending users */}
+      <div className="w-full flex flex-col items-center pt-10 z-10" dir={language === 'he' ? 'rtl' : 'ltr'}>
         {userStatus === 'pending' && (
           <div className="w-full max-w-xl mb-4 px-4 py-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded text-center shadow">
             ⏳ Your account is currently <strong>pending approval</strong>.
@@ -114,6 +118,9 @@ const App = ({ language, toggleLanguage }) => {
               setSelectedTopics([]);
             }}
             onGenerateClick={handleGenerate}
+            onResetTopics={resetSelectedTopics}
+            setExamNumber={setExamNumber} // ✅ NEW
+            examNumber={examNumber} // ✅ NEW
           />
         </div>
       </div>

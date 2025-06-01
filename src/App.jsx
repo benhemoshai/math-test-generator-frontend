@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import FormCard from './components/FormCard';
 import Layout from './components/Layout';
 import translations from './translations/translations';
 import { generateTest } from './services/api';
 import { AuthContext } from './context/AuthContext';
+
 
 const App = ({ language, toggleLanguage }) => {
   const [topics, setTopics] = useState([]);
@@ -14,42 +16,38 @@ const App = ({ language, toggleLanguage }) => {
   const [examNumber, setExamNumber] = useState(null);
   const { isLoggedIn, user } = useContext(AuthContext);
   const [userStatus, setUserStatus] = useState(user?.status);
+  const navigate = useNavigate();
 
   useEffect(() => {
     setUserStatus(user?.status);
   }, [user]);
 
   const handleGenerate = async () => {
-    if (!isLoggedIn) {
-      alert('Please log in to generate a test.');
-      return;
-    }
-    setIsGenerating(true);
-    try {
-      const blob = await generateTest({
-        topics: selectedTopics,
-        mixExams,
-        examNumber
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'math-test.pdf';
-      a.click();
-      URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error(err);
-      if (err.response?.status === 403) {
-        alert('Your account is pending approval. Please wait for admin approval before generating tests.');
-      } else if (err.response?.status === 401) {
-        alert('Session expired or unauthorized. Please log in again.');
-      } else {
-        alert('Failed to generate PDF. Please try again later.');
-      }
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+  if (!isLoggedIn) {
+    alert('Please log in to generate a test.');
+    return;
+  }
+
+  setIsGenerating(true);
+  try {
+    const blob = await generateTest({
+      topics: selectedTopics,
+      mixExams,
+      examNumber
+    });
+    const url = URL.createObjectURL(blob);
+
+    // Navigate to preview page with the blob URL
+    navigate('/preview', { state: { blobUrl: url } });
+
+  } catch (err) {
+    console.error(err);
+    alert('Failed to generate PDF. Please try again later.');
+  } finally {
+    setIsGenerating(false);
+  }
+};
+
 
   const resetSelectedTopics = () => {
     setSelectedTopics([]);

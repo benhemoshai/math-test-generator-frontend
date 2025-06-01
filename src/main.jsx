@@ -7,6 +7,7 @@ import ActivateAccount from './pages/ActivateAccount.jsx';
 import './index.css';
 import LoginForm from './pages/LoginForm.jsx';
 import RegisterForm from './pages/RegisterForm.jsx';
+import PreviewPage from './pages/PreviewPage.jsx';
 
 const Root = () => {
   const [language, setLanguage] = useState('en');
@@ -21,6 +22,8 @@ const Root = () => {
             path="/"
             element={<App language={language} toggleLanguage={toggleLanguage} />}
           />
+          <Route path="/preview" element={<PreviewPage />} />
+
           <Route
             path="/login"
             element={<LoginForm language={language} toggleLanguage={toggleLanguage} />}
@@ -30,6 +33,7 @@ const Root = () => {
             element={<RegisterForm language={language} toggleLanguage={toggleLanguage} />}
           />
           <Route path="/activate/:userId" element={<ActivateAccount />} />
+          
 
         </Routes>
       </BrowserRouter>

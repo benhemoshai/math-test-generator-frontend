@@ -11,8 +11,7 @@ const App = ({ language, toggleLanguage }) => {
   const [mixExams, setMixExams] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [examNumber, setExamNumber] = useState(null); // ✅ NEW
-
+  const [examNumber, setExamNumber] = useState(null);
   const { isLoggedIn, user } = useContext(AuthContext);
   const [userStatus, setUserStatus] = useState(user?.status);
 
@@ -28,7 +27,6 @@ const App = ({ language, toggleLanguage }) => {
         setIsLoading(false);
       }
     };
-
     loadTopics();
   }, []);
 
@@ -41,15 +39,13 @@ const App = ({ language, toggleLanguage }) => {
       alert('Please log in to generate a test.');
       return;
     }
-
     setIsGenerating(true);
     try {
       const blob = await generateTest({
         topics: selectedTopics,
         mixExams,
-        examNumber // ✅ SEND TO BACKEND
+        examNumber
       });
-
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -58,7 +54,6 @@ const App = ({ language, toggleLanguage }) => {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error(err);
-
       if (err.response?.status === 403) {
         alert('Your account is pending approval. Please wait for admin approval before generating tests.');
       } else if (err.response?.status === 401) {
@@ -96,33 +91,32 @@ const App = ({ language, toggleLanguage }) => {
 
   return (
     <Layout language={language} toggleLanguage={toggleLanguage}>
-      <div className="w-full flex flex-col items-center pt-10 z-10" dir={language === 'he' ? 'rtl' : 'ltr'}>
+      <div className="w-full flex flex-col items-center z-10" dir={language === 'he' ? 'rtl' : 'ltr'}>
         {userStatus === 'pending' && (
-          <div className="w-full max-w-xl mb-4 px-4 py-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded text-center shadow">
+          <div className="w-full max-w-4xl mb-6 px-4 py-3 bg-yellow-100 border border-yellow-400 text-yellow-800 rounded-lg text-center shadow-md">
             ⏳ Your account is currently <strong>pending approval</strong>.
-            You’ll receive an email once approved.
+            You'll receive an email once approved.
           </div>
         )}
-
-        <div className="w-full max-w-md sm:max-w-lg md:max-w-xl px-2 sm:px-4">
-          <FormCard
-            language={language}
-            translations={translations[language]}
-            topics={topics}
-            selectedTopics={selectedTopics}
-            mixExams={mixExams}
-            isGenerating={isGenerating}
-            onTopicChange={handleCheckboxChange}
-            onMixToggle={() => {
-              setMixExams(!mixExams);
-              setSelectedTopics([]);
-            }}
-            onGenerateClick={handleGenerate}
-            onResetTopics={resetSelectedTopics}
-            setExamNumber={setExamNumber} // ✅ NEW
-            examNumber={examNumber} // ✅ NEW
-          />
-        </div>
+        
+        {/* Remove the constraining container and let FormCard handle its own width */}
+        <FormCard
+          language={language}
+          translations={translations[language]}
+          topics={topics}
+          selectedTopics={selectedTopics}
+          mixExams={mixExams}
+          isGenerating={isGenerating}
+          onTopicChange={handleCheckboxChange}
+          onMixToggle={() => {
+            setMixExams(!mixExams);
+            setSelectedTopics([]);
+          }}
+          onGenerateClick={handleGenerate}
+          onResetTopics={resetSelectedTopics}
+          setExamNumber={setExamNumber}
+          examNumber={examNumber}
+        />
       </div>
     </Layout>
   );

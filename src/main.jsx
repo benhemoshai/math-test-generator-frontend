@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App.jsx';
 import AuthProvider from './context/AuthProvider';
-import ActivateAccount from './components/ActivateAccount.jsx';
+import ActivateAccount from './pages/ActivateAccount.jsx';
 import './index.css';
 import LoginForm from './pages/LoginForm.jsx';
 import RegisterForm from './pages/RegisterForm.jsx';

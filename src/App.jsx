@@ -2,33 +2,18 @@ import React, { useState, useEffect, useContext } from 'react';
 import FormCard from './components/FormCard';
 import Layout from './components/Layout';
 import translations from './translations/translations';
-import { fetchTopics, generateTest } from './services/api';
+import { generateTest } from './services/api';
 import { AuthContext } from './context/AuthContext';
 
 const App = ({ language, toggleLanguage }) => {
   const [topics, setTopics] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]);
   const [mixExams, setMixExams] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [examNumber, setExamNumber] = useState(null);
   const { isLoggedIn, user } = useContext(AuthContext);
   const [userStatus, setUserStatus] = useState(user?.status);
-
-  useEffect(() => {
-    const loadTopics = async () => {
-      try {
-        const data = await fetchTopics();
-        setTopics(data);
-      } catch (err) {
-        console.error('❌ Failed to load topics:', err);
-        alert('Failed to fetch topics from backend.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadTopics();
-  }, []);
 
   useEffect(() => {
     setUserStatus(user?.status);

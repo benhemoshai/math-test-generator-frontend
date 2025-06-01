@@ -2,11 +2,6 @@ import axios from 'axios';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
-export async function fetchTopics() {
-  const res = await axios.get(`${API_BASE}/topics`);
-  return res.data;
-}
-
 export async function generateTest({ topics, mixExams, examNumber }) {
   const token = localStorage.getItem('token');
 

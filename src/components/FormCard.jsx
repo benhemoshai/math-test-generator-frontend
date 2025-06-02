@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import unitTopics from '../utils/unitTopics';
+import { useLanguage } from '../context/LanguageContext';
+import translationsData from '../translations/translations';
 
 const FormCard = ({
-  language,
-  translations,
   mixExams,
   isGenerating,
   selectedTopics,
@@ -14,6 +14,9 @@ const FormCard = ({
   examNumber,
   setExamNumber
 }) => {
+  const { language } = useLanguage();
+  const translations = translationsData[language];
+
   const [selectedUnit, setSelectedUnit] = useState(null);
   const [selectedExam, setSelectedExam] = useState(null);
 
@@ -59,7 +62,22 @@ const FormCard = ({
                     : 'bg-white text-gray-700 hover:bg-blue-50'
                 }`}
               >
-                {unitObj.unit} {language === 'he' ? 'יח"ל' : 'Units'}
+                <span className="inline-flex gap-1 items-center">
+      {language === 'he' ? (
+        <>
+        <span>יח"ל</span>
+          <span>{unitObj.unit}</span>
+          
+        </>
+      ) : (
+        <>
+        
+          <span>{unitObj.unit}</span>
+            <span>Units</span>
+        </>
+      )}
+    </span>
+
               </button>
             ))}
           </div>
@@ -142,28 +160,31 @@ const FormCard = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 justify-items-center">
                 {chapter.topics.map((topic) => (
                   <label
-  key={topic.en}
-  className={`flex items-center border p-4 rounded-xl transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-lg w-full max-w-sm ${
-    language === 'he' ? 'text-right' : 'text-left'
-  } ${
-    selectedTopics.includes(topic.en)
-      ? 'bg-blue-100 border-blue-400 shadow-md'
-      : 'bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50'
-  }`}
->
-  <input
-    type="checkbox"
-    checked={selectedTopics.includes(topic.en)}
-    onChange={() => onTopicChange(topic.en)}
-    className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 flex-shrink-0"
-  />
-  <span className={`text-gray-800 text-sm font-medium leading-tight ${
-    language === 'he' ? 'mr-2' : 'ml-2'
-  }`}>
-    {language === 'he' ? topic.he : topic.en}
-  </span>
-</label>
-
+                    key={topic.en}
+                    className={`flex items-center border p-4 rounded-xl transition-transform duration-200 transform hover:scale-[1.02] hover:shadow-lg w-full max-w-sm ${
+                      language === 'he'
+                        ? 'flex-row-reverse text-right'
+                        : 'text-left'
+                    } ${
+                      selectedTopics.includes(topic.en)
+                        ? 'bg-blue-100 border-blue-400 shadow-md'
+                        : 'bg-white border-gray-200 hover:border-blue-200 hover:bg-blue-50'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedTopics.includes(topic.en)}
+                      onChange={() => onTopicChange(topic.en)}
+                      className="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500 flex-shrink-0"
+                    />
+                    <span
+                      className={`text-gray-800 text-sm font-medium leading-tight ${
+                        language === 'he' ? 'mr-2 text-right w-full' : 'ml-2 text-left'
+                      }`}
+                    >
+                      {language === 'he' ? topic.he : topic.en}
+                    </span>
+                  </label>
                 ))}
               </div>
             </div>

@@ -8,12 +8,15 @@ import './index.css';
 import LoginForm from './pages/LoginForm.jsx';
 import RegisterForm from './pages/RegisterForm.jsx';
 import PreviewPage from './pages/PreviewPage.jsx';
+import { LanguageProvider } from './context/LanguageContext';
+
 
 const Root = () => {
   const [language, setLanguage] = useState('en');
   const toggleLanguage = () => setLanguage(prev => (prev === 'en' ? 'he' : 'en'));
 
   return (
+    <LanguageProvider>
     <AuthProvider>
       <BrowserRouter>
         <Routes>
@@ -38,6 +41,7 @@ const Root = () => {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </LanguageProvider>
   );
 };
 
